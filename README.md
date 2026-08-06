@@ -27,8 +27,9 @@ comparison is apples-to-apples on identical hardware.
 
 ## Results
 
-All numbers produced by `reproduce.sh` on the environment in
-[`env/environment.md`](env/environment.md). Frozen splits carved once by
+All numbers produced by `reproduce.sh` on the environment fingerprinted by
+[`env/capture_env.sh`](env/capture_env.sh) (written to `env/environment.md` on
+first run). Frozen splits carved once by
 `harness/freeze_splits.py` (seed pinned) before any model was quantized.
 
 | Metric | BF16 baseline | W4A16 (GPTQ) | W4A16 (AWQ) | NVFP4 |
