@@ -140,7 +140,11 @@ def main():
     ap.add_argument("--gpu-mem", type=float, default=0.55,
                     help="vLLM gpu_memory_utilization; low default so the box's other tenants survive")
     ap.add_argument("--max-len", type=int, default=17408)   # 16k probe + question + headroom
+    ap.add_argument("--skip", default="",
+                    help="comma-separated metrics to skip (e.g. longctx when VRAM is shared: "
+                         "run it separately with the full window and merge)")
     args = ap.parse_args()
+    skip = set(filter(None, args.skip.split(",")))
 
     manifest = json.loads((pathlib.Path(args.splits) / "MANIFEST.json").read_text())
 
@@ -166,20 +170,33 @@ def main():
         results["metrics"][name] = m
         print(f"[eval:{args.tag}] {name} = {m['value']} (n={m['n']}, ci {m['ci95']})")
 
-    record("gsm8k", eval_gsm8k(generate, load_split(args.splits, "gsm8k")))
-    record("mmlu_stem", eval_mmlu(generate, load_split(args.splits, "mmlu_stem")))
-    record("mmlu_hum", eval_mmlu(generate, load_split(args.splits, "mmlu_hum")))
-    record("humaneval", eval_humaneval(generate, load_split(args.splits, "humaneval")))
-    record("numeric", numeric.run(generate, load_split(args.splits, "numeric")))
-    lc_scores, lc_depth = longctx.run(generate, load_split(args.splits, "longctx"))
-    record("longctx", lc_scores, extra={"by_depth": lc_depth})
-    ppl, item_nlls = eval_ppl(llm, load_split(args.splits, "ppl_wikitext"))
-    results["metrics"]["ppl_wikitext"] = {"value": round(ppl, 4), "n": len(item_nlls),
-                                          "nll_ci95": bootstrap_ci(item_nlls)}
-    print(f"[eval:{args.tag}] ppl_wikitext = {ppl:.4f}")
+    if "gsm8k" not in skip:
+        record("gsm8k", eval_gsm8k(generate, load_split(args.splits, "gsm8k")))
+    if "mmlu_stem" not in skip:
+        record("mmlu_stem", eval_mmlu(generate, load_split(args.splits, "mmlu_stem")))
+    if "mmlu_hum" not in skip:
+        record("mmlu_hum", eval_mmlu(generate, load_split(args.splits, "mmlu_hum")))
+    if "humaneval" not in skip:
+        record("humaneval", eval_humaneval(generate, load_split(args.splits, "humaneval")))
+    if "numeric" not in skip:
+        record("numeric", numeric.run(generate, load_split(args.splits, "numeric")))
+    if "longctx" not in skip:
+        lc_scores, lc_depth = longctx.run(generate, load_split(args.splits, "longctx"))
+        record("longctx", lc_scores, extra={"by_depth": lc_depth})
+    if "ppl_wikitext" not in skip:
+        ppl, item_nlls = eval_ppl(llm, load_split(args.splits, "ppl_wikitext"))
+        results["metrics"]["ppl_wikitext"] = {"value": round(ppl, 4), "n": len(item_nlls),
+                                              "nll_ci95": bootstrap_ci(item_nlls)}
+        print(f"[eval:{args.tag}] ppl_wikitext = {ppl:.4f}")
 
     out = pathlib.Path(args.out); out.mkdir(parents=True, exist_ok=True)
     p = out / f"{args.tag}.json"
+    if p.exists():   # partial-run merge: existing metrics survive unless re-run
+        prior = json.loads(p.read_text())
+        prior_metrics = prior.get("metrics", {})
+        prior_metrics.update(results["metrics"])
+        results["metrics"] = prior_metrics
+        results["merged_from"] = prior.get("git")
     p.write_text(json.dumps(results, indent=2))
     print(f"[eval:{args.tag}] wrote {p}")
 
