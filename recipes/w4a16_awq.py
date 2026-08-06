@@ -19,8 +19,14 @@ def main():
     from llmcompressor.modifiers.awq import AWQModifier
 
     # TODO: swap calibration source if the model is chat-tuned (use chat-formatted calib)
+    from transformers import AutoTokenizer
+    tok = AutoTokenizer.from_pretrained(args.model, revision=args.revision)
     ds = load_dataset("HuggingFaceH4/ultrachat_200k", split="train_sft") \
         .shuffle(seed=args.seed).select(range(args.num_calib))
+    # oneshot wants a text column; ultrachat ships chat 'messages' — render them
+    # through the model's own chat template so calibration sees realistic inputs
+    ds = ds.map(lambda ex: {"text": tok.apply_chat_template(ex["messages"], tokenize=False)},
+                remove_columns=ds.column_names)
 
     recipe = AWQModifier(
         targets="Linear",
