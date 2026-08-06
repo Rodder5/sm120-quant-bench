@@ -34,13 +34,13 @@ first run). Frozen splits carved once by
 
 | Metric | BF16 baseline | W4A16 (GPTQ) | W4A16 (AWQ) | NVFP4 |
 |---|---|---|---|---|
-| Perplexity (wikitext-2, frozen slice) | TODO | TODO | TODO | TODO |
-| GSM8K (strict-match) | TODO | TODO | TODO | TODO |
-| HumanEval (pass@1) | TODO | TODO | TODO | TODO |
-| MMLU – STEM subset | TODO | TODO | TODO | TODO |
-| MMLU – humanities subset | TODO | TODO | TODO | TODO |
+| Perplexity (wikitext-2, frozen slice) | 17.924 | TODO | TODO | TODO |
+| GSM8K (strict-match) | 91.8 [89.4, 94.2] | TODO | TODO | TODO |
+| HumanEval (pass@1) | 63.4 [56.1, 70.7] | TODO | TODO | TODO |
+| MMLU – STEM subset | 71.8 [68.6, 74.8] | TODO | TODO | TODO |
+| MMLU – humanities subset | 62.3 [58.9, 65.6] | TODO | TODO | TODO |
 | Long-context retrieval @16k | TODO | TODO | TODO | TODO |
-| Numeric fidelity probe | TODO | TODO | TODO | TODO |
+| Numeric fidelity probe | 78.7 [74.0, 83.3] | TODO | TODO | TODO |
 | Weights on disk (GB) | TODO | TODO | TODO | TODO |
 | TTFT p50 (ms) | TODO | TODO | TODO | TODO |
 | ITL p50 (ms/token) | TODO | TODO | TODO | TODO |
