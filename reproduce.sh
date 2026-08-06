@@ -4,8 +4,8 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-MODEL="Qwen/Qwen3-8B"          # TODO pin revision
-REV="main"                      # TODO pin commit hash
+MODEL="Qwen/Qwen3-8B"
+REV="b968826d9c46dd6066d109eabc6255188de91218"
 SEED=3407
 OUT="results"
 STAGE="${2:-all}"

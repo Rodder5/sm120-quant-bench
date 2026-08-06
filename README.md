@@ -19,8 +19,8 @@ the point of `reproduce.sh`.
 
 ## Model
 
-<!-- TODO: pin exact HF repo + revision hash -->
-Baseline: `Qwen/Qwen3-8B` @ revision `TODO`, BF16.
+
+Baseline: `Qwen/Qwen3-8B` @ revision `b968826d9c46dd6066d109eabc6255188de91218`, BF16.
 Chosen because the BF16 baseline, both quantized variants, and the KV cache
 for the long-context probe all fit a 32 GB card without offload, so every
 comparison is apples-to-apples on identical hardware.

@@ -4,7 +4,7 @@
 set -euo pipefail
 V="$1"
 case "$V" in
-  bf16)        M="Qwen/Qwen3-8B"; EXTRA="--dtype bfloat16" ;;   # TODO pin revision
+  bf16)        M="Qwen/Qwen3-8B"; EXTRA="--dtype bfloat16 --revision b968826d9c46dd6066d109eabc6255188de91218" ;;
   w4a16-gptq)  M="models/w4a16-gptq"; EXTRA="" ;;
   w4a16-awq)   M="models/w4a16-awq"; EXTRA="" ;;
   nvfp4)       M="models/nvfp4"; EXTRA="" ;;

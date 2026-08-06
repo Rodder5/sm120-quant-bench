@@ -1,0 +1,54 @@
+{
+  "seed": 3407,
+  "splits": {
+    "ppl_wikitext": {
+      "source": "wikitext",
+      "config": "wikitext-2-raw-v1",
+      "split": "test",
+      "n": 1833,
+      "sha256": "4e2e9413a470b20a97657f4e2891b51be9c34f56e3c13806f98126a8e5110fb1"
+    },
+    "gsm8k": {
+      "source": "gsm8k",
+      "config": "main",
+      "split": "test",
+      "n": 500,
+      "sha256": "fee46a954cc0e10ac0e5b33a0b1ccc71b60d8e169e3cd586421ddf6c2b99ed5d"
+    },
+    "humaneval": {
+      "source": "openai_humaneval",
+      "config": null,
+      "split": "test",
+      "n": 164,
+      "sha256": "3077dcfeea65954f42cc9619ec320423994bb2074b460926f99fa110dcbd3acf"
+    },
+    "mmlu_stem": {
+      "source": "cais/mmlu",
+      "config": "all",
+      "split": "test",
+      "n": 800,
+      "sha256": "3b07a7f494590820f75a8e8df03e8adf11cda721590bcbce23005fc2b6bab25d"
+    },
+    "mmlu_hum": {
+      "source": "cais/mmlu",
+      "config": "all",
+      "split": "test",
+      "n": 800,
+      "sha256": "80347e1f6ee2d554c212409b23a678376d4a1fd9014a7f80b3fd2e77bbee062f"
+    },
+    "longctx": {
+      "source": "synthetic",
+      "config": null,
+      "split": null,
+      "n": 200,
+      "sha256": "eb4c48cb22b0a6f00a96742d078d1f62076ff75a91c9b2ce20e349172e220f20"
+    },
+    "numeric": {
+      "source": "synthetic",
+      "config": null,
+      "split": null,
+      "n": 300,
+      "sha256": "7c06609e1c9ab23657cedc1fadb3bc810495b5de85a3b154a90cd542b64ab1b5"
+    }
+  }
+}
