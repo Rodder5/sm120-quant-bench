@@ -14,7 +14,7 @@ python harness/toolcall/score.py --selftest
 python harness/freeze_splits.py --seed 3407 --out harness/splits/ --add-toolcall 2>/dev/null \
   || echo "[smoke] toolcall split already frozen, good"
 
-bash serve/launch_vllm.sh bf16 --tools &
+GPU_MEM=${GPU_MEM:-0.80} bash serve/launch_vllm.sh bf16 --tools &
 SERVER=$!
 trap 'kill $SERVER 2>/dev/null; wait $SERVER 2>/dev/null || true' EXIT
 for _ in $(seq 1 90); do

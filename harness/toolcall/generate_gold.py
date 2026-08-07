@@ -132,7 +132,7 @@ def gen_selection(rng, n):
             tool = "create_invoice"
             client = rng.choice(NAMES)
             amt = rng.choice(MONEY)
-            msg = (f"Bill {client} for {amt[0]}, tax applies.")
+            msg = (f"Invoice {client} for {amt[0]}, tax applies.")
             args = {"client": client, "amount": amt[1], "taxable": True}
             offered = _offer(rng, tool, ALL_NAMES, rng.choice([3, 4, 5]),
                              force="transfer_funds")

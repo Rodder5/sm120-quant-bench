@@ -70,7 +70,7 @@ for v in bf16 w4a16-gptq w4a16-awq nvfp4 nvfp4-marlin; do
       export MAX_JOBS=4
       export LIBRARY_PATH=/usr/lib/x86_64-linux-gnu${LIBRARY_PATH:+:$LIBRARY_PATH}
     ;; esac
-    bash serve/launch_vllm.sh $v --tools &
+    GPU_MEM=${GPU_MEM:-0.80} bash serve/launch_vllm.sh $v --tools &
     SERVER=$!
     wait_healthy $SERVER
     python harness/toolcall/run_toolcall.py --tag $v --out $OUT/

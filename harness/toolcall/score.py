@@ -22,6 +22,11 @@ Strictness notes, deliberate and documented:
   the transfer_funds probe.
 - Primitive arrays compare as multisets (attendee order is not signal).
   Arrays of objects compare as multisets of canonicalized objects.
+- Free-text fields (title, memo, notes) match by case-folded containment: the
+  gold phrase must appear in the produced value. Exact match there would
+  measure paraphrase tolerance ("Incident Postmortem Meeting" for gold
+  "incident postmortem"), which is not the damage under study. Wrong-topic
+  values still fail. Found by the bf16 smoke run before any results existed.
 """
 import json
 import random
@@ -137,13 +142,27 @@ def _values_equal(got, want):
     return ng == nw
 
 
+FREE_TEXT_FIELDS = {"title", "memo", "notes"}
+
+
+def _free_text_match(got, want):
+    return (isinstance(got, str) and isinstance(want, str)
+            and want.strip().casefold() in got.strip().casefold())
+
+
 def values_match(call, expected_args):
     got = call["arguments"]
     if not isinstance(got, dict):
         return False
     if set(got) != set(expected_args):
         return False
-    return all(_values_equal(got[k], expected_args[k]) for k in expected_args)
+    for k in expected_args:
+        if k in FREE_TEXT_FIELDS:
+            if not _free_text_match(got[k], expected_args[k]):
+                return False
+        elif not _values_equal(got[k], expected_args[k]):
+            return False
+    return True
 
 
 # -- per-item scoring ---------------------------------------------------------

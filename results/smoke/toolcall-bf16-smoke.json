@@ -1,0 +1,93 @@
+{
+  "tag": "toolcall-bf16-smoke",
+  "model_served": "Qwen/Qwen3-8B",
+  "git": "6f9c7de758b1404dd03c1a22912e6fe240bee0ce",
+  "when": "2026-08-07T23:54:40.405760Z",
+  "split_manifest_seed": 3407,
+  "split_sha256": "e33ebba6c73ff1f257141b56d727a6a73ec526e4353be80b5e29874dc674aa0c",
+  "n_items": 10,
+  "limited": true,
+  "kernel_stderr": "serve/logs_bf16-smoke.stderr",
+  "sampling": {
+    "temperature": 0,
+    "seed": 3407,
+    "tool_choice": "auto",
+    "max_tokens": 512
+  },
+  "layers": [
+    "L1_parse",
+    "L2_selection",
+    "L3_schema",
+    "L4_values"
+  ],
+  "metrics": {
+    "selection": {
+      "L1_parse": {
+        "value": 1.0,
+        "n": 10,
+        "ci95": [
+          1.0,
+          1.0
+        ]
+      },
+      "L2_selection": {
+        "value": 1.0,
+        "n": 10,
+        "ci95": [
+          1.0,
+          1.0
+        ]
+      },
+      "L3_schema": {
+        "value": 1.0,
+        "n": 10,
+        "ci95": [
+          1.0,
+          1.0
+        ]
+      },
+      "L4_values": {
+        "value": 1.0,
+        "n": 10,
+        "ci95": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "overall": {
+      "L1_parse": {
+        "value": 1.0,
+        "n": 10,
+        "ci95": [
+          1.0,
+          1.0
+        ]
+      },
+      "L2_selection": {
+        "value": 1.0,
+        "n": 10,
+        "ci95": [
+          1.0,
+          1.0
+        ]
+      },
+      "L3_schema": {
+        "value": 1.0,
+        "n": 10,
+        "ci95": [
+          1.0,
+          1.0
+        ]
+      },
+      "L4_values": {
+        "value": 1.0,
+        "n": 10,
+        "ci95": [
+          1.0,
+          1.0
+        ]
+      }
+    }
+  }
+}

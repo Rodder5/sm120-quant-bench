@@ -16,4 +16,9 @@ esac
 if [ "${2:-}" = "--tools" ]; then
   EXTRA="$EXTRA --enable-auto-tool-choice --tool-call-parser hermes"
 fi
+# Optional GPU_MEM env caps gpu-memory-utilization: vLLM's 0.92 default needs
+# a cleaner card than a box with resident co-tenants can offer.
+if [ -n "${GPU_MEM:-}" ]; then
+  EXTRA="$EXTRA --gpu-memory-utilization $GPU_MEM"
+fi
 exec vllm serve "$M" $EXTRA --max-model-len 16384 --port 8000 2> "serve/logs_$V.stderr"
