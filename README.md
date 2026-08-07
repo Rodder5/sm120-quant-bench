@@ -42,21 +42,30 @@ first run). Frozen splits carved once by
 | Long-context retrieval @16k | 100.0 | 100.0 | 100.0 | TODO |
 | Long-context v2, multi-needle @16k | 96.7 | 93.3 | 95.0 | TODO |
 | Numeric fidelity probe | 78.7 [74.0, 83.3] | 76.7 [71.7, 81.3] | 70.0 [65.0, 75.0] | TODO |
-| Weights on disk (GB) | 16.4 | 6.1 | 6.1 | TODO |
+| Weights on disk (GB) | 16.4 | 6.1 | 6.1 | 6.4 |
 | TTFT p50 (ms) | 14.8 | 7.7 | 7.7 | TODO |
 | ITL p50 (ms/token) | 11.1 | 4.7 | 4.7 | TODO |
 
 Deltas vs BF16 with bootstrap 95% CIs: `results/` after a full run.
 
-**NVFP4 status (2026-08-06):** no numbers yet, and the absence is itself a finding.
-On this stack (llm-compressor 0.12.0.1, torch 2.11, one RTX 5090) the NVFP4 leg fails
-three separate ways: the default sequential pipeline cannot fx-trace Qwen3-8B (its
-traced subgraph trips `You must specify exactly one of input_ids or inputs_embeds`);
-`pipeline="basic"` then requests a single 16 GiB allocation on top of the 16 GiB of
-BF16 weights, which no 32 GB card can satisfy; and the datacenter-default calibration
-settings assume headroom a consumer part does not have. Every published NVFP4 number
-we can find was produced on B200-class hardware where none of these paths are exercised.
-Next attempt: CPU-offloaded calibration. Logs preserved.
+**NVFP4 postmortem (2026-08-07):** the column exists because two independent bugs
+were unpicked, and the debugging trail is worth more than the numbers. On the released
+stack (llm-compressor 0.12.0.1, torch 2.11, one RTX 5090) the sequential pipeline
+cannot fx-trace Qwen3-8B (its traced subgraph trips `You must specify exactly one of
+input_ids or inputs_embeds`); that is fixed on llm-compressor main (unreleased), which
+`recipes/nvfp4.py` now requires. Behind it hid a second failure that had been
+misattributed to the quantizer across three earlier attempts: a recurring
+"Tried to allocate 16.00 GiB" OOM that survived both `pipeline="basic"` and full CPU
+weight offload. It was never the pipeline — with `max_seq_length` omitted, a single
+10k+-token calibration conversation explodes the attention-mask expansion in
+transformers' `masking_utils`. Truncated to 2048 like the other recipes, calibration
+runs beside 4 GB of co-tenants. Moral for 32 GB parts: when weight offload does not
+move an OOM at all, the allocation is activations, not weights. Serving surfaced a
+third, sm_120-specific quirk: vLLM's NVFP4 matmul on consumer Blackwell is a
+flashinfer JIT kernel (`fp4_gemm_cutlass_sm120`) compiled at first load, and a conda
+nvcc without curand headers fails that build — unlike the sampler, it cannot be
+disabled by env var, because it IS the GEMM. Fix: put `curand_kernel.h` (shipped in
+the `nvidia-*-cu13` pip wheels) on nvcc's include path. Logs preserved.
 
 **Long-context probe status:** BF16 and W4A16-GPTQ both score 100% at every depth,
 so the current single-needle design is saturated and cannot discriminate — a ceiling,
