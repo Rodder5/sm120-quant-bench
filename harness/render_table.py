@@ -39,7 +39,7 @@ def main():
     for p in pathlib.Path(args.results).glob("*.json"):
         d = json.loads(p.read_text())
         if "metrics" in d:
-            res[d["tag"]] = d["metrics"]
+            res.setdefault(d["tag"], {}).update(d["metrics"])   # merge: speed files may land first
         elif "ttft_p50_ms" in d:                       # speed bench output
             res.setdefault(d["tag"], {})
             res[d["tag"]]["ttft_p50_ms"] = d["ttft_p50_ms"]

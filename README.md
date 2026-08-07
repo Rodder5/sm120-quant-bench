@@ -34,18 +34,35 @@ first run). Frozen splits carved once by
 
 | Metric | BF16 baseline | W4A16 (GPTQ) | W4A16 (AWQ) | NVFP4 |
 |---|---|---|---|---|
-| Perplexity (wikitext-2, frozen slice) | 17.924 | 19.662 | TODO | TODO |
-| GSM8K (strict-match) | 91.8 [89.4, 94.2] | 88.4 [85.6, 91.2] | TODO | TODO |
-| HumanEval (pass@1) | 63.4 [56.1, 70.7] | 64.6 [57.3, 72.0] | TODO | TODO |
-| MMLU – STEM subset | 71.8 [68.6, 74.8] | 69.0 [65.8, 72.1] | TODO | TODO |
-| MMLU – humanities subset | 62.3 [58.9, 65.6] | 62.6 [59.2, 65.9] | TODO | TODO |
-| Long-context retrieval @16k | TODO | TODO | TODO | TODO |
-| Numeric fidelity probe | 78.7 [74.0, 83.3] | 76.7 [71.7, 81.3] | TODO | TODO |
-| Weights on disk (GB) | TODO | 6.1 | TODO | TODO |
-| TTFT p50 (ms) | TODO | TODO | TODO | TODO |
-| ITL p50 (ms/token) | TODO | TODO | TODO | TODO |
+| Perplexity (wikitext-2, frozen slice) | 17.924 | 19.662 | 19.725 | TODO |
+| GSM8K (strict-match) | 91.8 [89.4, 94.2] | 88.4 [85.6, 91.2] | 88.8 [86.0, 91.4] | TODO |
+| HumanEval (pass@1) | 63.4 [56.1, 70.7] | 64.6 [57.3, 72.0] | 58.5 [51.2, 65.8] | TODO |
+| MMLU – STEM subset | 71.8 [68.6, 74.8] | 69.0 [65.8, 72.1] | 66.8 [63.5, 69.9] | TODO |
+| MMLU – humanities subset | 62.3 [58.9, 65.6] | 62.6 [59.2, 65.9] | 60.2 [56.8, 63.6] | TODO |
+| Long-context retrieval @16k | 100.0 | 100.0 | 100.0 | TODO |
+| Numeric fidelity probe | 78.7 [74.0, 83.3] | 76.7 [71.7, 81.3] | 70.0 [65.0, 75.0] | TODO |
+| Weights on disk (GB) | TODO | 6.1 | 6.1 | TODO |
+| TTFT p50 (ms) | 14.8 | 7.7 | 7.7 | TODO |
+| ITL p50 (ms/token) | 11.1 | 4.7 | 4.7 | TODO |
 
 Deltas vs BF16 with bootstrap 95% CIs: `results/` after a full run.
+
+**NVFP4 status (2026-08-06):** no numbers yet, and the absence is itself a finding.
+On this stack (llm-compressor 0.12.0.1, torch 2.11, one RTX 5090) the NVFP4 leg fails
+three separate ways: the default sequential pipeline cannot fx-trace Qwen3-8B (its
+traced subgraph trips `You must specify exactly one of input_ids or inputs_embeds`);
+`pipeline="basic"` then requests a single 16 GiB allocation on top of the 16 GiB of
+BF16 weights, which no 32 GB card can satisfy; and the datacenter-default calibration
+settings assume headroom a consumer part does not have. Every published NVFP4 number
+we can find was produced on B200-class hardware where none of these paths are exercised.
+Next attempt: CPU-offloaded calibration. Logs preserved.
+
+**Long-context probe status:** BF16 and W4A16-GPTQ both score 100% at every depth,
+so the current single-needle design is saturated and cannot discriminate — a ceiling,
+not a victory. The probe needs hardening (multiple needles, near-miss distractor keys,
+answer synthesis rather than retrieval) before this row means anything. Reported as-is
+because a saturated metric silently presented as "no degradation" is exactly the
+failure mode this repo exists to call out.
 
 **The one-table argument:** compare the spread of the MMLU rows against the
 spread of the GSM8K and long-context rows. <!-- TODO: one sentence once numbers exist -->
