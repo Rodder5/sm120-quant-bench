@@ -41,7 +41,7 @@ first run). Frozen splits carved once by
 | MMLU – humanities subset | 62.3 [58.9, 65.6] | 62.6 [59.2, 65.9] | 60.2 [56.8, 63.6] | TODO |
 | Long-context retrieval @16k | 100.0 | 100.0 | 100.0 | TODO |
 | Numeric fidelity probe | 78.7 [74.0, 83.3] | 76.7 [71.7, 81.3] | 70.0 [65.0, 75.0] | TODO |
-| Weights on disk (GB) | 0.0 | 6.1 | 6.1 | TODO |
+| Weights on disk (GB) | 16.4 | 6.1 | 6.1 | TODO |
 | TTFT p50 (ms) | 14.8 | 7.7 | 7.7 | TODO |
 | ITL p50 (ms/token) | 11.1 | 4.7 | 4.7 | TODO |
 

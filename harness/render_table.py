@@ -46,7 +46,7 @@ def main():
             res[d["tag"]]["itl_p50_ms"] = d["itl_p50_ms"]
 
     # weights on disk, measured not asserted
-    res.setdefault("bf16-baseline", {})["disk_gb"] = 924 / 1e9   # HF snapshot, measured
+    res.setdefault("bf16-baseline", {})["disk_gb"] = 16397461266 / 1e9   # HF snapshot, measured
     for tag, rel in [("w4a16-gptq", "models/w4a16-gptq"), ("w4a16-awq", "models/w4a16-awq"),
                      ("nvfp4", "models/nvfp4")]:
         d = pathlib.Path(rel)
