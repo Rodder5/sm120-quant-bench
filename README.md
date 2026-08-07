@@ -2,7 +2,8 @@
 
 NVFP4 and W4A16 quantization on consumer Blackwell (RTX 5090, sm_120):
 recipes, an eval harness designed to detect quantization damage that
-aggregate benchmarks hide, and fully reproducible numbers.
+aggregate benchmarks hide, and fully reproducible numbers. Write-up:
+["NVFP4 on a 5090 names two different machines"](https://rodwoods.dev/posts/nvfp4-names-two-machines/).
 
 **Claim under test:** 4-bit quantization damage is not uniform. It pools in
 specific capabilities (numeric reasoning, code generation, long-context
@@ -135,7 +136,8 @@ Requires: RTX 5090 (or any sm_120 part), CUDA 12.8+, ~150 GB disk, one long day 
 - `serve/` – vLLM launch configs and the TTFT/ITL speed bench
 - `env/` – environment capture (driver, CUDA, torch, vllm, llm-compressor versions)
 - `results/` – raw JSON per run + rendered tables; nothing hand-edited
-- `writeup/` – the blog post draft this repo backs
+- `writeup/` – outline for the write-up this repo backs, published at
+  [rodwoods.dev: "NVFP4 on a 5090 names two different machines"](https://rodwoods.dev/posts/nvfp4-names-two-machines/)
 
 ## Provenance rules
 
