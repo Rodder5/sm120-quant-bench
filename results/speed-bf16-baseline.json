@@ -1,0 +1,8 @@
+{
+  "tag": "bf16-baseline",
+  "model": "Qwen/Qwen3-8B",
+  "n_requests": 20,
+  "ttft_p50_ms": 14.8,
+  "itl_p50_ms": 11.08,
+  "ttft_p95_ms": 15.9
+}

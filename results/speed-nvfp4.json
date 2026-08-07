@@ -1,0 +1,8 @@
+{
+  "tag": "nvfp4",
+  "model": "models/nvfp4",
+  "n_requests": 20,
+  "ttft_p50_ms": 9.3,
+  "itl_p50_ms": 6.6,
+  "ttft_p95_ms": 9.7
+}

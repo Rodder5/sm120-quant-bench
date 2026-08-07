@@ -1,0 +1,8 @@
+{
+  "tag": "nvfp4-marlin",
+  "model": "models/nvfp4",
+  "n_requests": 20,
+  "ttft_p50_ms": 7.3,
+  "itl_p50_ms": 4.6,
+  "ttft_p95_ms": 8.1
+}
