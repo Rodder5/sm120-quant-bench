@@ -161,30 +161,34 @@ def main():
     _KSEL = _re.compile(r"GEMM|LinearKernel|[Ff]all(?:s|ing)? back|Marlin|"
                         r"native support|[Kk]ernel.*(?:select|dispatch)|[Bb]ackend")
     _kernel_lines: list = []
-    _orig_stderr_fd = os.dup(2)
-    _pipe_r, _pipe_w = os.pipe()
-    os.dup2(_pipe_w, 2)
-    os.close(_pipe_w)
 
-    def _stderr_tee():
-        buf = b""
-        while True:
-            chunk = os.read(_pipe_r, 65536)
-            if not chunk:
-                break
-            os.write(_orig_stderr_fd, chunk)        # behaviour unchanged for logs
-            buf += chunk
-            *lines, buf = buf.split(b"\n")
-            for ln in lines:
-                try:
+    def _tee_fd(fd):
+        # vLLM's logger writes to stdout, tracebacks to stderr, and both come
+        # from the EngineCore CHILD process — so wrap the inherited fd itself.
+        orig = os.dup(fd)
+        pipe_r, pipe_w = os.pipe()
+        os.dup2(pipe_w, fd)
+        os.close(pipe_w)
+
+        def pump():
+            buf = b""
+            while True:
+                chunk = os.read(pipe_r, 65536)
+                if not chunk:
+                    break
+                os.write(orig, chunk)               # behaviour unchanged for logs
+                buf += chunk
+                *lines, buf = buf.split(b"\n")
+                for ln in lines:
                     s = ln.decode(errors="replace")
-                except Exception:
-                    continue
-                if (_KSEL.search(s) and "\r" not in s
-                        and s not in _kernel_lines and len(_kernel_lines) < 40):
-                    _kernel_lines.append(s)
+                    if (_KSEL.search(s) and "\r" not in s
+                            and s not in _kernel_lines and len(_kernel_lines) < 40):
+                        _kernel_lines.append(s)
 
-    threading.Thread(target=_stderr_tee, daemon=True).start()
+        threading.Thread(target=pump, daemon=True).start()
+
+    _tee_fd(1)
+    _tee_fd(2)
 
     from vllm import LLM, SamplingParams
     llm_kwargs = {}

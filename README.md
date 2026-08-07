@@ -58,17 +58,17 @@ first run). Frozen splits carved once by
 
 | Metric | BF16 baseline | W4A16 (GPTQ) | W4A16 (AWQ) | NVFP4 |
 |---|---|---|---|---|
-| Perplexity (wikitext-2, frozen slice) | 17.924 | 19.662 | 19.725 | TODO |
-| GSM8K (strict-match) | 91.8 [89.4, 94.2] | 88.4 [85.6, 91.2] | 88.8 [86.0, 91.4] | TODO |
-| HumanEval (pass@1) | 63.4 [56.1, 70.7] | 64.6 [57.3, 72.0] | 58.5 [51.2, 65.8] | TODO |
-| MMLU – STEM subset | 71.8 [68.6, 74.8] | 69.0 [65.8, 72.1] | 66.8 [63.5, 69.9] | TODO |
-| MMLU – humanities subset | 62.3 [58.9, 65.6] | 62.6 [59.2, 65.9] | 60.2 [56.8, 63.6] | TODO |
-| Long-context retrieval @16k | 100.0 | 100.0 | 100.0 | TODO |
-| Long-context v2, multi-needle @16k | 96.7 | 93.3 | 95.0 | TODO |
-| Numeric fidelity probe | 78.7 [74.0, 83.3] | 76.7 [71.7, 81.3] | 70.0 [65.0, 75.0] | TODO |
+| Perplexity (wikitext-2, frozen slice) | 17.924 | 19.662 | 19.725 | 18.282 |
+| GSM8K (strict-match) | 91.8 [89.4, 94.2] | 88.4 [85.6, 91.2] | 88.8 [86.0, 91.4] | 86.6 [83.6, 89.6] |
+| HumanEval (pass@1) | 63.4 [56.1, 70.7] | 64.6 [57.3, 72.0] | 58.5 [51.2, 65.8] | 65.2 [57.9, 72.6] |
+| MMLU – STEM subset | 71.8 [68.6, 74.8] | 69.0 [65.8, 72.1] | 66.8 [63.5, 69.9] | 69.1 [65.9, 72.2] |
+| MMLU – humanities subset | 62.3 [58.9, 65.6] | 62.6 [59.2, 65.9] | 60.2 [56.8, 63.6] | 59.6 [56.1, 63.0] |
+| Long-context retrieval @16k | 100.0 | 100.0 | 100.0 | 100.0 |
+| Long-context v2, multi-needle @16k | 96.7 | 93.3 | 95.0 | 93.3 |
+| Numeric fidelity probe | 78.7 [74.0, 83.3] | 76.7 [71.7, 81.3] | 70.0 [65.0, 75.0] | 72.7 [67.7, 77.7] |
 | Weights on disk (GB) | 16.4 | 6.1 | 6.1 | 6.4 |
-| TTFT p50 (ms) | 14.8 | 7.7 | 7.7 | TODO |
-| ITL p50 (ms/token) | 11.1 | 4.7 | 4.7 | TODO |
+| TTFT p50 (ms) | 14.8 | 7.7 | 7.7 | 9.3 |
+| ITL p50 (ms/token) | 11.1 | 4.7 | 4.7 | 6.6 |
 
 Deltas vs BF16 with bootstrap 95% CIs: `results/` after a full run.
 
