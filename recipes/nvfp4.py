@@ -29,8 +29,13 @@ def main():
     # NVFP4: 4-bit float, hardware scale factors. Global scales need calibration data
     # (unlike plain FP8 dynamic). Keep lm_head and any draft head in BF16.
     recipe = QuantizationModifier(targets="Linear", scheme="NVFP4", ignore=["lm_head"])
+    # pipeline="basic": llm-compressor 0.12's sequential fx tracer cannot trace
+    # Qwen3-8B (its wrapped input guard fires inside the traced subgraph). The
+    # basic pipeline runs whole-model calibration instead — needs the card to
+    # itself, which on a 32GB consumer part means evicting every co-tenant first.
     oneshot(model=args.model, dataset=ds, recipe=recipe,
-            num_calibration_samples=args.num_calib, output_dir=args.out)
+            num_calibration_samples=args.num_calib, output_dir=args.out,
+            pipeline="basic")
     print(f"[nvfp4] saved -> {args.out}")
 
 if __name__ == "__main__":
