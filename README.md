@@ -11,11 +11,35 @@ measures where it pools, per format, on hardware anyone can buy.
 
 ## Why sm_120
 
-Nearly all published NVFP4 work runs on datacenter parts (B200/B300, sm_100).
-Consumer Blackwell is a different compute capability (sm_120) with its own
-kernel coverage, toolchain quirks, and thinly documented behaviour. These
-numbers were produced on one RTX 5090. Your mileage should not vary: that is
-the point of `reproduce.sh`.
+Consumer Blackwell is no longer unmeasured territory. A January 2026 study
+([arXiv:2601.09527](https://arxiv.org/html/2601.09527v1)) benchmarks NVFP4, W4A16
+and MXFP4 across the RTX 5060 Ti, 5070 Ti and 5090 with confidence intervals and a
+released harness. This repo asks two questions that work leaves open.
+
+**Does "NVFP4 on a 5090" measure what it claims to?** It depends on the stack, and
+the only disclosure is a log line. On vLLM 0.24 with a ModelOpt mixed checkpoint,
+NVFP4 layers fall back to the Marlin weight-only kernel with a stderr warning
+("Your GPU does not have native support for FP4 computation")
+([vllm#47749](https://github.com/vllm-project/vllm/issues/47749)) — 16-bit
+activations, the card's FP4 hardware unused. On this repo's stack (vLLM 0.26,
+compressed-tensors W4A4 checkpoint), the native path engages:
+`Using FlashInferCutlassNvFp4LinearKernel for NVFP4 GEMM`. Same GPU, same format
+name, different machine measured. Published consumer-Blackwell NVFP4 numbers that
+don't quote their kernel-selection logs may be measuring Marlin in a trench coat —
+arXiv:2601.09527 does not document which path served its numbers, and from aggregate
+reporting it is not answerable. Every eval and speed run here records vLLM's
+kernel-selection lines into its results JSON (`kernel_selection`) and serve stderr
+(`serve/logs_<variant>.stderr`); no number is reported without them.
+
+**Can aggregate metrics see quantization damage at all?** Prior work reports
+suite-level deltas ("2–4% quality loss"). The harness here reports per-capability
+probes with bootstrap CIs and frozen splits carved before any quantization — and the
+headline result (see table) is a case where perplexity calls two quantization
+algorithms identical (19.66 vs 19.73) while a numeric-fidelity probe separates them
+by 6.7 points.
+
+Same card anyone can buy; the contribution is the measurement discipline, not the
+silicon.
 
 ## Model
 
@@ -56,16 +80,28 @@ input_ids or inputs_embeds`); that is fixed on llm-compressor main (unreleased),
 `recipes/nvfp4.py` now requires. Behind it hid a second failure that had been
 misattributed to the quantizer across three earlier attempts: a recurring
 "Tried to allocate 16.00 GiB" OOM that survived both `pipeline="basic"` and full CPU
-weight offload. It was never the pipeline — with `max_seq_length` omitted, a single
-10k+-token calibration conversation explodes the attention-mask expansion in
-transformers' `masking_utils`. Truncated to 2048 like the other recipes, calibration
+weight offload. It was never the pipeline — with `max_seq_length` omitted, calibration
+pads every batch to its longest sample, and transformers' `masking_utils` materializes
+the attention-mask broadcast over the whole padded batch: 128 samples × 3994² (our
+longest sample, measured) at 8 bytes is 15.9 GiB — the "16.00 GiB" in the traceback.
+Truncated to 2048 like the other recipes, that broadcast shrinks ~4× and calibration
 runs beside 4 GB of co-tenants. Moral for 32 GB parts: when weight offload does not
 move an OOM at all, the allocation is activations, not weights. Serving surfaced a
-third, sm_120-specific quirk: vLLM's NVFP4 matmul on consumer Blackwell is a
-flashinfer JIT kernel (`fp4_gemm_cutlass_sm120`) compiled at first load, and a conda
-nvcc without curand headers fails that build — unlike the sampler, it cannot be
-disabled by env var, because it IS the GEMM. Fix: put `curand_kernel.h` (shipped in
-the `nvidia-*-cu13` pip wheels) on nvcc's include path. Logs preserved.
+third, sm_120-specific quirk: vLLM auto-selects flashinfer for native FP4 compute on
+consumer Blackwell (the alternatives in its NVFP4 kernel registry either run
+weight-only via Marlin — 16-bit activations, not the format under test — or unoptimized
+emulation), and that kernel (`fp4_gemm_cutlass_sm120`) is JIT-compiled at first load. A
+conda nvcc without curand headers fails that build. Fix: put `curand_kernel.h` (shipped
+in the `nvidia-*-cu13` pip wheels) on the include path, e.g. via the supported
+`FLASHINFER_EXTRA_CUDAFLAGS` hook. Logs preserved.
+
+**NVFP4 speed caveat:** NVFP4 TTFT/ITL numbers were measured with
+`VLLM_FLASHINFER_AUTOTUNE_SKIP_OPS=fp4_gemm` (default kernel tactics). Full fp4_gemm
+autotune on sm_120 tunes every capture-size × layer-shape combination at ~1.5 min
+each — 3.5 hours in, it was still going, so evals (where tactics change nothing)
+and speed (where they matter at the margin) both skip it; a fully-autotuned speed
+rerun is a cheap follow-up once the cache finishes building. Quality numbers are
+unaffected by tactic selection.
 
 **Long-context probe status:** BF16 and W4A16-GPTQ both score 100% at every depth,
 so the current single-needle design is saturated and cannot discriminate — a ceiling,

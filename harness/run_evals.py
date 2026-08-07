@@ -143,15 +143,56 @@ def main():
     ap.add_argument("--skip", default="",
                     help="comma-separated metrics to skip (e.g. longctx when VRAM is shared: "
                          "run it separately with the full window and merge)")
+    ap.add_argument("--linear-backend", default=None,
+                    help="force a vLLM linear-kernel backend (e.g. 'marlin') instead of "
+                         "auto-selection; used to measure what a silent fallback costs")
     args = ap.parse_args()
     skip = set(filter(None, args.skip.split(",")))
 
     manifest = json.loads((pathlib.Path(args.splits) / "MANIFEST.json").read_text())
 
+    # A benchmark that doesn't record WHICH kernel served it may be measuring a
+    # silent fallback (e.g. Marlin weight-only standing in for native FP4 — see
+    # vllm#47749). vLLM's kernel-selection lines are logged by the EngineCore
+    # CHILD process, so an in-process logging handler never sees them; instead
+    # tee our stderr fd (which children inherit) through a pipe and grep it at
+    # write time, embedding the matches in the results JSON.
+    import os, re as _re, threading
+    _KSEL = _re.compile(r"GEMM|LinearKernel|[Ff]all(?:s|ing)? back|Marlin|"
+                        r"native support|[Kk]ernel.*(?:select|dispatch)|[Bb]ackend")
+    _kernel_lines: list = []
+    _orig_stderr_fd = os.dup(2)
+    _pipe_r, _pipe_w = os.pipe()
+    os.dup2(_pipe_w, 2)
+    os.close(_pipe_w)
+
+    def _stderr_tee():
+        buf = b""
+        while True:
+            chunk = os.read(_pipe_r, 65536)
+            if not chunk:
+                break
+            os.write(_orig_stderr_fd, chunk)        # behaviour unchanged for logs
+            buf += chunk
+            *lines, buf = buf.split(b"\n")
+            for ln in lines:
+                try:
+                    s = ln.decode(errors="replace")
+                except Exception:
+                    continue
+                if (_KSEL.search(s) and "\r" not in s
+                        and s not in _kernel_lines and len(_kernel_lines) < 40):
+                    _kernel_lines.append(s)
+
+    threading.Thread(target=_stderr_tee, daemon=True).start()
+
     from vllm import LLM, SamplingParams
+    llm_kwargs = {}
+    if args.linear_backend:
+        llm_kwargs["linear_backend"] = args.linear_backend
     llm = LLM(model=args.model, revision=args.revision, dtype=args.dtype,
               gpu_memory_utilization=args.gpu_mem, max_model_len=args.max_len,
-              enforce_eager=False, seed=3407)
+              enforce_eager=False, seed=3407, **llm_kwargs)
 
     def generate(prompts, max_tokens, stop=None):
         sp = SamplingParams(temperature=0, max_tokens=max_tokens, stop=stop)
@@ -160,7 +201,8 @@ def main():
 
     results = {"tag": args.tag, "model": args.model, "revision": args.revision,
                "git": git_hash(), "when": datetime.datetime.utcnow().isoformat() + "Z",
-               "split_manifest_seed": manifest["seed"], "metrics": {}}
+               "split_manifest_seed": manifest["seed"],
+               "kernel_selection": _kernel_lines, "metrics": {}}
 
     def record(name, scores, extra=None):
         m = {"value": round(sum(scores) / len(scores), 4), "n": len(scores),
