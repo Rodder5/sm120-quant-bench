@@ -120,6 +120,28 @@ matches or slightly beats the native FP4 path on quality AND on single-stream sp
 at default tactics — the "silent fallback" of vllm#47749 is, today, the stronger
 serving path on this card. Caveats and kernel receipts in the results JSONs.
 
+## Tool calling under quantization (in progress)
+
+Agent stacks bet that quantization preserves structured output: a model that
+still writes fine prose is assumed to still emit valid, correctly-argued tool
+calls. This study measures the bet, extending the numeric-fidelity finding
+(4-bit damage pools in near-tie digit choices) to the place where a wrong
+digit becomes a wrong API call. 300 frozen items across selection, extraction,
+abstention, and compound categories; scoring is hierarchical so damage is
+localized, not averaged: L1 did it emit a parseable call, L2 the right tool,
+L3 schema-valid arguments, L4 exactly the right values. Same discipline as the
+rest of the repo: frozen split in the manifest, gold generated from templates
+and seed-pinned lexicons (no LLM), bootstrap 95% CIs, kernel receipts per run.
+
+| L4-conditional chain | BF16 | W4A16 (GPTQ) | W4A16 (AWQ) | NVFP4 (native) | NVFP4 (Marlin) |
+|---|---|---|---|---|---|
+| L1 parse rate | TODO | TODO | TODO | TODO | TODO |
+| L2 tool selection | TODO | TODO | TODO | TODO | TODO |
+| L3 schema validity | TODO | TODO | TODO | TODO | TODO |
+| L4 argument values | TODO | TODO | TODO | TODO | TODO |
+
+Per-category tables land in `results/toolcall-<variant>.json`.
+
 ## Reproduce
 
 ```bash

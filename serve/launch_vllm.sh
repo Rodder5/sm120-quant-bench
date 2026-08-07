@@ -4,10 +4,16 @@
 set -euo pipefail
 V="$1"
 case "$V" in
-  bf16)        M="Qwen/Qwen3-8B"; EXTRA="--dtype bfloat16 --revision b968826d9c46dd6066d109eabc6255188de91218" ;;
-  w4a16-gptq)  M="models/w4a16-gptq"; EXTRA="" ;;
-  w4a16-awq)   M="models/w4a16-awq"; EXTRA="" ;;
-  nvfp4)       M="models/nvfp4"; EXTRA="" ;;
+  bf16)         M="Qwen/Qwen3-8B"; EXTRA="--dtype bfloat16 --revision b968826d9c46dd6066d109eabc6255188de91218" ;;
+  w4a16-gptq)   M="models/w4a16-gptq"; EXTRA="" ;;
+  w4a16-awq)    M="models/w4a16-awq"; EXTRA="" ;;
+  nvfp4)        M="models/nvfp4"; EXTRA="" ;;
+  nvfp4-marlin) M="models/nvfp4"; EXTRA="--linear-backend marlin" ;;
   *) echo "unknown variant $V"; exit 1 ;;
 esac
+# Optional second arg --tools enables OpenAI-style tool calling (Qwen3 needs
+# the hermes parser). Plain serving behaviour is unchanged without it.
+if [ "${2:-}" = "--tools" ]; then
+  EXTRA="$EXTRA --enable-auto-tool-choice --tool-call-parser hermes"
+fi
 exec vllm serve "$M" $EXTRA --max-model-len 16384 --port 8000 2> "serve/logs_$V.stderr"

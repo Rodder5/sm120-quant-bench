@@ -110,13 +110,43 @@ def _numeric(n, rng):
     return items
 
 
+def add_toolcall(out, manifest_p, seed):
+    """Additive freeze for the tool-calling split. Existing entries and their
+    hashes are preserved byte-for-byte; re-freezing toolcall is refused."""
+    manifest = json.loads(manifest_p.read_text())
+    if "toolcall" in manifest.get("splits", {}):
+        sys.exit("toolcall split already frozen: frozen means frozen.")
+    sys.path.insert(0, str(pathlib.Path(__file__).parent / "toolcall"))
+    from generate_gold import generate
+    items = generate(seed, 300)
+    path = out / "toolcall.jsonl"
+    with open(path, "w") as f:
+        for item in items:
+            f.write(json.dumps(item) + "\n")
+    manifest["splits"]["toolcall"] = {
+        "source": "synthetic", "config": None, "split": None, "n": len(items),
+        "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+    }
+    manifest_p.write_text(json.dumps(manifest, indent=2))
+    print(f"[splits] toolcall: {len(items)} items frozen (seed {seed}); "
+          "existing split entries untouched")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--seed", type=int, required=True)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--add-toolcall", action="store_true",
+                    help="additively freeze ONLY the toolcall split into an "
+                         "existing manifest; never touches other entries")
     args = ap.parse_args()
     out = pathlib.Path(args.out); out.mkdir(parents=True, exist_ok=True)
     manifest_p = out / "MANIFEST.json"
+    if args.add_toolcall:
+        if not manifest_p.exists():
+            sys.exit("--add-toolcall requires an existing MANIFEST.json")
+        add_toolcall(out, manifest_p, args.seed)
+        return
     if manifest_p.exists():
         sys.exit("MANIFEST.json exists: splits are frozen. Delete deliberately if you truly mean to re-carve.")
 
