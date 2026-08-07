@@ -10,6 +10,7 @@ ROWS = [
     ("MMLU – STEM subset", "mmlu_stem"),
     ("MMLU – humanities subset", "mmlu_hum"),
     ("Long-context retrieval @16k", "longctx@16k"),
+    ("Long-context v2, multi-needle @16k", "longctx_v2@16k"),
     ("Numeric fidelity probe", "numeric"),
     ("Weights on disk (GB)", "disk_gb"),
     ("TTFT p50 (ms)", "ttft_p50_ms"),
@@ -56,8 +57,8 @@ def main():
 
     def cell(tag, metric):
         m = res.get(tag, {})
-        if metric == "longctx@16k":
-            lc = m.get("longctx")
+        if metric in ("longctx@16k", "longctx_v2@16k"):
+            lc = m.get(metric.split("@")[0])
             if lc and "by_depth" in lc and "16000" in lc["by_depth"]:
                 return f"{lc['by_depth']['16000'] * 100:.1f}"
             return "TODO"

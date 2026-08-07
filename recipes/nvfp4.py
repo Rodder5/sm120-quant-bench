@@ -11,6 +11,11 @@ def main():
     ap.add_argument("--seed", type=int, default=3407)
     ap.add_argument("--out", required=True)
     ap.add_argument("--num-calib", type=int, default=512)
+    ap.add_argument("--offload", action="store_true",
+                    help="load the model with accelerate CPU offload so basic-pipeline "
+                         "calibration fits a 32GB card (its whole-model pass otherwise "
+                         "requests a second 16GiB on top of the weights)")
+    ap.add_argument("--gpu-cap", default="12GiB")
     args = ap.parse_args()
 
     from datasets import load_dataset
@@ -33,7 +38,14 @@ def main():
     # Qwen3-8B (its wrapped input guard fires inside the traced subgraph). The
     # basic pipeline runs whole-model calibration instead — needs the card to
     # itself, which on a 32GB consumer part means evicting every co-tenant first.
-    oneshot(model=args.model, dataset=ds, recipe=recipe,
+    model = args.model
+    if args.offload:
+        import torch
+        from transformers import AutoModelForCausalLM
+        model = AutoModelForCausalLM.from_pretrained(
+            args.model, revision=args.revision, torch_dtype=torch.bfloat16,
+            device_map="auto", max_memory={0: args.gpu_cap, "cpu": "96GiB"})
+    oneshot(model=model, dataset=ds, recipe=recipe,
             num_calibration_samples=args.num_calib, output_dir=args.out,
             pipeline="basic")
     print(f"[nvfp4] saved -> {args.out}")

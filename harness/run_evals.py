@@ -183,6 +183,13 @@ def main():
     if "longctx" not in skip:
         lc_scores, lc_depth = longctx.run(generate, load_split(args.splits, "longctx"))
         record("longctx", lc_scores, extra={"by_depth": lc_depth})
+    if "longctx_v2" not in skip:
+        try:
+            v2 = load_split(args.splits, "longctx_v2")
+            lc2_scores, lc2_depth = longctx.run(generate, v2)
+            record("longctx_v2", lc2_scores, extra={"by_depth": lc2_depth})
+        except FileNotFoundError:
+            pass
     if "ppl_wikitext" not in skip:
         ppl, item_nlls = eval_ppl(llm, load_split(args.splits, "ppl_wikitext"))
         results["metrics"]["ppl_wikitext"] = {"value": round(ppl, 4), "n": len(item_nlls),
