@@ -103,15 +103,21 @@ and speed (where they matter at the margin) both skip it; a fully-autotuned spee
 rerun is a cheap follow-up once the cache finishes building. Quality numbers are
 unaffected by tactic selection.
 
-**Long-context probe status:** BF16 and W4A16-GPTQ both score 100% at every depth,
-so the current single-needle design is saturated and cannot discriminate — a ceiling,
-not a victory. The probe needs hardening (multiple needles, near-miss distractor keys,
-answer synthesis rather than retrieval) before this row means anything. Reported as-is
-because a saturated metric silently presented as "no degradation" is exactly the
-failure mode this repo exists to call out.
+**Long-context probe status:** the v1 single-needle row sits at 100% for nearly
+every variant — saturated, a ceiling rather than a victory, retained as the honesty
+exhibit. The v2 row (three needles, near-miss distractor keys, queried needle never
+last-inserted) de-saturates it and shows the degradation v1 could not: BF16 96.7 vs
+GPTQ 93.3 at 16k depth. A saturated metric silently presented as "no degradation" is
+exactly the failure mode this repo exists to call out.
 
-**The one-table argument:** compare the spread of the MMLU rows against the
-spread of the GSM8K and long-context rows. <!-- TODO: one sentence once numbers exist -->
+**The one-table argument:** NVFP4 posts the best perplexity of the three quantized
+formats (18.28, near baseline) and the worst GSM8K (86.6) with numeric fidelity 6
+points under baseline. Ranked by the metric quantization papers lead with, you would
+pick the format that damaged arithmetic most. Bonus finding: the same NVFP4
+checkpoint forced through the Marlin weight-only fallback (`results/nvfp4-marlin.json`)
+matches or slightly beats the native FP4 path on quality AND on single-stream speed
+at default tactics — the "silent fallback" of vllm#47749 is, today, the stronger
+serving path on this card. Caveats and kernel receipts in the results JSONs.
 
 ## Reproduce
 
