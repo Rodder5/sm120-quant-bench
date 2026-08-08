@@ -1,0 +1,181 @@
+{
+  "tag": "toolcall-nvfp4",
+  "model_served": "models/nvfp4",
+  "git": "9a2bfa425ed5e5ef711d7e6998aa8c3370b8b9b5",
+  "when": "2026-08-08T00:41:41.125296Z",
+  "split_manifest_seed": 3407,
+  "split_sha256": "e33ebba6c73ff1f257141b56d727a6a73ec526e4353be80b5e29874dc674aa0c",
+  "n_items": 300,
+  "limited": false,
+  "kernel_stderr": "serve/logs_nvfp4.stderr",
+  "sampling": {
+    "temperature": 0,
+    "seed": 3407,
+    "tool_choice": "auto",
+    "max_tokens": 512
+  },
+  "layers": [
+    "L1_parse",
+    "L2_selection",
+    "L3_schema",
+    "L4_values"
+  ],
+  "metrics": {
+    "abstention": {
+      "L1_parse": {
+        "value": 1.0,
+        "n": 75,
+        "ci95": [
+          1.0,
+          1.0
+        ]
+      },
+      "L2_selection": {
+        "value": 1.0,
+        "n": 75,
+        "ci95": [
+          1.0,
+          1.0
+        ]
+      },
+      "L3_schema": null,
+      "L4_values": null
+    },
+    "compound": {
+      "L1_parse": {
+        "value": 0.9467,
+        "n": 75,
+        "ci95": [
+          0.8933,
+          0.9867
+        ]
+      },
+      "L2_selection": {
+        "value": 1.0,
+        "n": 71,
+        "ci95": [
+          1.0,
+          1.0
+        ]
+      },
+      "L3_schema": {
+        "value": 1.0,
+        "n": 71,
+        "ci95": [
+          1.0,
+          1.0
+        ]
+      },
+      "L4_values": {
+        "value": 1.0,
+        "n": 71,
+        "ci95": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "extraction": {
+      "L1_parse": {
+        "value": 0.6933,
+        "n": 75,
+        "ci95": [
+          0.5867,
+          0.7867
+        ]
+      },
+      "L2_selection": {
+        "value": 1.0,
+        "n": 52,
+        "ci95": [
+          1.0,
+          1.0
+        ]
+      },
+      "L3_schema": {
+        "value": 1.0,
+        "n": 52,
+        "ci95": [
+          1.0,
+          1.0
+        ]
+      },
+      "L4_values": {
+        "value": 0.8462,
+        "n": 52,
+        "ci95": [
+          0.75,
+          0.9423
+        ]
+      }
+    },
+    "selection": {
+      "L1_parse": {
+        "value": 0.96,
+        "n": 75,
+        "ci95": [
+          0.9067,
+          1.0
+        ]
+      },
+      "L2_selection": {
+        "value": 1.0,
+        "n": 72,
+        "ci95": [
+          1.0,
+          1.0
+        ]
+      },
+      "L3_schema": {
+        "value": 1.0,
+        "n": 72,
+        "ci95": [
+          1.0,
+          1.0
+        ]
+      },
+      "L4_values": {
+        "value": 0.9306,
+        "n": 72,
+        "ci95": [
+          0.875,
+          0.9861
+        ]
+      }
+    },
+    "overall": {
+      "L1_parse": {
+        "value": 0.9,
+        "n": 300,
+        "ci95": [
+          0.8667,
+          0.9333
+        ]
+      },
+      "L2_selection": {
+        "value": 1.0,
+        "n": 270,
+        "ci95": [
+          1.0,
+          1.0
+        ]
+      },
+      "L3_schema": {
+        "value": 1.0,
+        "n": 195,
+        "ci95": [
+          1.0,
+          1.0
+        ]
+      },
+      "L4_values": {
+        "value": 0.9333,
+        "n": 195,
+        "ci95": [
+          0.8974,
+          0.9641
+        ]
+      }
+    }
+  }
+}

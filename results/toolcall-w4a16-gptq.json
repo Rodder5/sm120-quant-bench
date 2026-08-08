@@ -1,0 +1,181 @@
+{
+  "tag": "toolcall-w4a16-gptq",
+  "model_served": "models/w4a16-gptq",
+  "git": "9a2bfa425ed5e5ef711d7e6998aa8c3370b8b9b5",
+  "when": "2026-08-08T00:21:07.397965Z",
+  "split_manifest_seed": 3407,
+  "split_sha256": "e33ebba6c73ff1f257141b56d727a6a73ec526e4353be80b5e29874dc674aa0c",
+  "n_items": 300,
+  "limited": false,
+  "kernel_stderr": "serve/logs_w4a16-gptq.stderr",
+  "sampling": {
+    "temperature": 0,
+    "seed": 3407,
+    "tool_choice": "auto",
+    "max_tokens": 512
+  },
+  "layers": [
+    "L1_parse",
+    "L2_selection",
+    "L3_schema",
+    "L4_values"
+  ],
+  "metrics": {
+    "abstention": {
+      "L1_parse": {
+        "value": 1.0,
+        "n": 75,
+        "ci95": [
+          1.0,
+          1.0
+        ]
+      },
+      "L2_selection": {
+        "value": 1.0,
+        "n": 75,
+        "ci95": [
+          1.0,
+          1.0
+        ]
+      },
+      "L3_schema": null,
+      "L4_values": null
+    },
+    "compound": {
+      "L1_parse": {
+        "value": 0.9733,
+        "n": 75,
+        "ci95": [
+          0.9333,
+          1.0
+        ]
+      },
+      "L2_selection": {
+        "value": 1.0,
+        "n": 73,
+        "ci95": [
+          1.0,
+          1.0
+        ]
+      },
+      "L3_schema": {
+        "value": 1.0,
+        "n": 73,
+        "ci95": [
+          1.0,
+          1.0
+        ]
+      },
+      "L4_values": {
+        "value": 0.9726,
+        "n": 73,
+        "ci95": [
+          0.9315,
+          1.0
+        ]
+      }
+    },
+    "extraction": {
+      "L1_parse": {
+        "value": 0.7467,
+        "n": 75,
+        "ci95": [
+          0.6533,
+          0.84
+        ]
+      },
+      "L2_selection": {
+        "value": 1.0,
+        "n": 56,
+        "ci95": [
+          1.0,
+          1.0
+        ]
+      },
+      "L3_schema": {
+        "value": 1.0,
+        "n": 56,
+        "ci95": [
+          1.0,
+          1.0
+        ]
+      },
+      "L4_values": {
+        "value": 0.7857,
+        "n": 56,
+        "ci95": [
+          0.6786,
+          0.8929
+        ]
+      }
+    },
+    "selection": {
+      "L1_parse": {
+        "value": 1.0,
+        "n": 75,
+        "ci95": [
+          1.0,
+          1.0
+        ]
+      },
+      "L2_selection": {
+        "value": 1.0,
+        "n": 75,
+        "ci95": [
+          1.0,
+          1.0
+        ]
+      },
+      "L3_schema": {
+        "value": 1.0,
+        "n": 75,
+        "ci95": [
+          1.0,
+          1.0
+        ]
+      },
+      "L4_values": {
+        "value": 0.9067,
+        "n": 75,
+        "ci95": [
+          0.84,
+          0.9733
+        ]
+      }
+    },
+    "overall": {
+      "L1_parse": {
+        "value": 0.93,
+        "n": 300,
+        "ci95": [
+          0.9,
+          0.9567
+        ]
+      },
+      "L2_selection": {
+        "value": 1.0,
+        "n": 279,
+        "ci95": [
+          1.0,
+          1.0
+        ]
+      },
+      "L3_schema": {
+        "value": 1.0,
+        "n": 204,
+        "ci95": [
+          1.0,
+          1.0
+        ]
+      },
+      "L4_values": {
+        "value": 0.8971,
+        "n": 204,
+        "ci95": [
+          0.8529,
+          0.9363
+        ]
+      }
+    }
+  }
+}
