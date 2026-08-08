@@ -53,3 +53,35 @@ split entry changed.
   move after data collection.
 - Abstention was 100 for every variant: no spurious calls, anywhere. The
   trigger-happiness worry did not materialize at 8B.
+
+### 2026-08-07: the phantom tracer bug, closed
+
+The night-one tracer failure on Qwen3-8B ("You must specify exactly one of
+input_ids or inputs_embeds", llmcompressor 0.12.0.1) could not be reproduced
+in any clean configuration: pinned 0.12.0.1 alone (CPU), pinned 0.12.0.1 +
+compressed-tensors 0.17.0 (CPU), the same combo with the GPU visible, and the
+same combo with max_seq_length omitted. The last of these fails, but with the
+16 GiB mask OOM already filed as issue #3011, disguised on the release line by
+append_autowrap_source_on_fail re-raising it under an autowrapped source dump.
+Conclusion: the tracer error was environmental and is not filed; the draft
+issue for it stays withdrawn. New facts fed back as a comment on #3011: the
+allocation is invariant to sample count (8 vs 128 samples, identical
+16.00 GiB), and the release version buries the OOM below generated code.
+
+### 2026-08-07: toolcall scorer audit + receipts gap
+
+- Audit of the perfect L1/L2/L3 scores (the rule: too-good numbers get audited
+  first): near-miss sibling present in the offer list for 100% of engineered
+  items; sampled selection passes are genuine choices against live
+  distractors; abstention passes are real prose refusals; a systematic sweep
+  of all abstention passes across all five variants found zero unparsed
+  tool-call shapes hiding in content. The 100s stand.
+- Receipts gap found and fixed: vllm serve emits kernel-selection INFO on
+  stdout, and serve/launch_vllm.sh captured stderr only, so toolcall serve
+  receipts landed in orchestrator logs instead of the repo. Receipts recovered
+  into results/toolcall-<variant>.json (kernel_selection field); the serve
+  script now captures both streams.
+- Thinking mode: ON via the Qwen3 default chat template, identically
+  configured for all five variants (same server flags). All tool calls in the
+  study were emitted after a <think> block; the max_tokens=512 budget interacts
+  with this, hence the ablation at 1024.
