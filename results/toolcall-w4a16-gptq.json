@@ -177,5 +177,11 @@
         ]
       }
     }
-  }
+  },
+  "kernel_selection": [
+    "(EngineCore pid=3730251) INFO 08-07 17:13:13 [compressed_tensors_wNa16.py:137] Using MarlinLinearKernel for CompressedTensorsWNA16",
+    "(EngineCore pid=3730251) WARNING 08-07 17:13:22 [kernel_warmup.py:258] No FlashInfer autotune cache entries found.Falling back to default tactics.",
+    "(EngineCore pid=3730251) INFO 08-07 17:13:22 [kernel_warmup.py:65] Warming up ll_bf16 router GEMM kernels."
+  ],
+  "thinking_mode": "on (Qwen3 default chat template; identical server config across variants)"
 }

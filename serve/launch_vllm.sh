@@ -21,4 +21,6 @@ fi
 if [ -n "${GPU_MEM:-}" ]; then
   EXTRA="$EXTRA --gpu-memory-utilization $GPU_MEM"
 fi
-exec vllm serve "$M" $EXTRA --max-model-len 16384 --port 8000 2> "serve/logs_$V.stderr"
+# Both streams into the capture file: vllm serve emits kernel-selection INFO
+# on stdout, tracebacks on stderr, and the receipt needs them all.
+exec vllm serve "$M" $EXTRA --max-model-len 16384 --port 8000 > "serve/logs_$V.stderr" 2>&1

@@ -177,5 +177,11 @@
         ]
       }
     }
-  }
+  },
+  "kernel_selection": [
+    "(EngineCore pid=3731650) INFO 08-07 17:29:47 [__init__.py:978] Using FlashInferCutlassNvFp4LinearKernel for NVFP4 GEMM",
+    "(EngineCore pid=3731650) WARNING 08-07 17:29:55 [kernel_warmup.py:258] No FlashInfer autotune cache entries found.Falling back to default tactics.",
+    "(EngineCore pid=3731650) INFO 08-07 17:29:55 [kernel_warmup.py:65] Warming up ll_bf16 router GEMM kernels."
+  ],
+  "thinking_mode": "on (Qwen3 default chat template; identical server config across variants)"
 }

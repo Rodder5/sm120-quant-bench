@@ -177,5 +177,10 @@
         ]
       }
     }
-  }
+  },
+  "kernel_selection": [
+    "(EngineCore pid=3729300) WARNING 08-07 16:55:42 [kernel_warmup.py:258] No FlashInfer autotune cache entries found.Falling back to default tactics.",
+    "(EngineCore pid=3729300) INFO 08-07 16:55:42 [kernel_warmup.py:65] Warming up ll_bf16 router GEMM kernels."
+  ],
+  "thinking_mode": "on (Qwen3 default chat template; identical server config across variants)"
 }
