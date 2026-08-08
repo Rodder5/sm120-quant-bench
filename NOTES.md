@@ -29,3 +29,27 @@ split entry changed.
 - vLLM's default gpu-memory-utilization (0.92) refuses to start on a card with
   ~3.7 GB of resident co-tenants. serve/launch_vllm.sh now accepts a GPU_MEM
   env override; the toolcall stages default it to 0.80.
+
+### 2026-08-07: full-run observations (all five variants)
+
+- Failure-class taxonomy from raw-response inspection, three distinct classes
+  behind the L1/L4 numbers:
+  1. Thinking-mode exhaustion (dominant L1 failure): the model emits <think>
+     deliberation and exhausts the 512-token budget before any tool call.
+     Worst on native NVFP4. CONFOUND: max_tokens=512 was an instrument choice;
+     a robustness rerun at a higher budget would separate "deliberates longer
+     under quantization" from "never concludes". Raw responses preserved for
+     exactly this question.
+  2. Transformation errors (dominant extraction L4 failure): spoken times
+     mis-mapped ("ten to noon" to 10:00, "five to midnight" to 05:00), worst
+     on AWQ, echoing its numeric-fidelity deficit.
+  3. Invented optional arguments: values the user never stated (keep_aspect,
+     quality, repeat_daily) supplied with hallucinated defaults. Scored as L4
+     failures by design; agent stacks should care.
+- Free-text containment still fails on dropped articles ("Renew car insurance"
+  vs gold "renew the car insurance"). Affects all variants roughly equally, so
+  comparisons stand, but absolute L4 rates understate value accuracy slightly.
+  Recorded rather than patched: results exist now, and the instrument does not
+  move after data collection.
+- Abstention was 100 for every variant: no spurious calls, anywhere. The
+  trigger-happiness worry did not materialize at 8B.

@@ -120,7 +120,7 @@ matches or slightly beats the native FP4 path on quality AND on single-stream sp
 at default tactics — the "silent fallback" of vllm#47749 is, today, the stronger
 serving path on this card. Caveats and kernel receipts in the results JSONs.
 
-## Tool calling under quantization (in progress)
+## Tool calling under quantization
 
 Agent stacks bet that quantization preserves structured output: a model that
 still writes fine prose is assumed to still emit valid, correctly-argued tool
@@ -133,14 +133,38 @@ L3 schema-valid arguments, L4 exactly the right values. Same discipline as the
 rest of the repo: frozen split in the manifest, gold generated from templates
 and seed-pinned lexicons (no LLM), bootstrap 95% CIs, kernel receipts per run.
 
-| L4-conditional chain | BF16 | W4A16 (GPTQ) | W4A16 (AWQ) | NVFP4 (native) | NVFP4 (Marlin) |
+| Layer (conditional chain) | BF16 | W4A16 (GPTQ) | W4A16 (AWQ) | NVFP4 (native) | NVFP4 (Marlin) |
 |---|---|---|---|---|---|
-| L1 parse rate | TODO | TODO | TODO | TODO | TODO |
-| L2 tool selection | TODO | TODO | TODO | TODO | TODO |
-| L3 schema validity | TODO | TODO | TODO | TODO | TODO |
-| L4 argument values | TODO | TODO | TODO | TODO | TODO |
+| L1 parse / correct abstain | 93.3 [90.3, 96.0] | 93.0 [90.0, 95.7] | 94.7 [92.0, 97.0] | 90.0 [86.7, 93.3] | 91.0 [87.7, 94.0] |
+| L2 tool selection | 100.0 | 100.0 | 100.0 | 100.0 | 100.0 |
+| L3 schema validity | 100.0 | 100.0 | 100.0 | 100.0 | 100.0 |
+| L4 argument values | 91.7 [87.8, 95.1] | 89.7 [85.3, 93.6] | 88.0 [83.2, 92.3] | 93.3 [89.7, 96.4] | 90.9 [86.9, 94.4] |
 
-Per-category tables land in `results/toolcall-<variant>.json`.
+First read of the results (per-category tables in `results/toolcall-<variant>.json`,
+raw responses in `results/raw/`, instrument caveats in NOTES.md):
+
+- **The structural machinery never breaks.** Every variant scores 100 on tool
+  selection and schema validity, near-miss distractors included, and 100 on
+  abstention: no variant ever forces a spurious call on a question no tool
+  answers. The agent-stack bet largely holds at 8B.
+- **Digit copying survives 4-bit perfectly.** The transfer_funds slice
+  (formatted amounts, 10-digit account ids) scores 100 for every variant. The
+  pre-registered sharpest prediction was wrong, and instructively: study one's
+  numeric damage lives in near-tie computation, and copying is not computation.
+- **Damage pools in transformation.** The extraction category (spoken times to
+  HH:MM, worded quantities to integers) is where L4 drops: BF16 80.4 vs AWQ
+  71.2, with AWQ, the format that damaged arithmetic most, damaging
+  transformation most. Failure modes in the raw responses: "ten to noon"
+  becomes 10:00, "five to midnight" becomes 05:00, plus invented optional
+  arguments the user never stated.
+- **NVFP4's damage lands somewhere else entirely: it stops calling.** Native
+  NVFP4 has the best argument accuracy (93.3) but the worst L1 (90.0), and the
+  raw responses show why: on failed items it deliberates in thinking tokens
+  until the token budget runs out and never emits the call. Format-specific
+  damage, again, one layer up. (Confound: the 512-token budget; see NOTES.md.)
+
+Pairwise CIs overlap throughout; category-level gaps are directional, not
+definitive, at n=300. The write-up treats them accordingly.
 
 ## Reproduce
 
