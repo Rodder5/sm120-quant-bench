@@ -151,17 +151,22 @@ raw responses in `results/raw/`, instrument caveats in NOTES.md):
   (formatted amounts, 10-digit account ids) scores 100 for every variant. The
   pre-registered sharpest prediction was wrong, and instructively: study one's
   numeric damage lives in near-tie computation, and copying is not computation.
-- **Damage pools in transformation.** The extraction category (spoken times to
-  HH:MM, worded quantities to integers) is where L4 drops: BF16 80.4 vs AWQ
-  71.2, with AWQ, the format that damaged arithmetic most, damaging
-  transformation most. Failure modes in the raw responses: "ten to noon"
-  becomes 10:00, "five to midnight" becomes 05:00, plus invented optional
-  arguments the user never stated.
-- **NVFP4's damage lands somewhere else entirely: it stops calling.** Native
-  NVFP4 has the best argument accuracy (93.3) but the worst L1 (90.0), and the
-  raw responses show why: on failed items it deliberates in thinking tokens
-  until the token budget runs out and never emits the call. Format-specific
-  damage, again, one layer up. (Confound: the 512-token budget; see NOTES.md.)
+- **W4A16's L4 damage is mostly invented defaults, not garbled values.**
+  Decomposing the failures: GPTQ and AWQ roughly double the baseline rate of
+  hallucinated optional arguments (9.3% and 9.6% vs 5.4%), values the user
+  never stated (repeat_daily: false, quality: 0.8), while their pure
+  wrong-value counts sit at or below baseline. Both NVFP4 paths suppress
+  invention to 1.5 to 2.5% instead. Format-specific damage with opposite
+  signs. Genuine transformation fumbles exist too ("ten to noon" becomes
+  10:00, "five to midnight" becomes 05:00) but they are the minority class.
+- **NVFP4 does not stop calling; it concludes slower.** The max_tokens
+  ablation (results/toolcall-ablation-maxtokens.json) re-ran every L1 failure
+  at a doubled budget: 26 of NVFP4's 30 failures land, most correctly. The
+  honest claim: FP4 weight quantization lengthens thinking-mode deliberation,
+  so at a fixed 512-token budget NVFP4 fails to complete calls half again as
+  often as baseline (30 vs 20), with a small never-concludes tail (4 vs 1).
+  Both NVFP4 kernel paths show it, so it is the weights, not the activation
+  path. Budgets are real in production; that is the finding.
 
 Pairwise CIs overlap throughout; category-level gaps are directional, not
 definitive, at n=300. The write-up treats them accordingly.
