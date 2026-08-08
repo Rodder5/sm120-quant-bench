@@ -1,0 +1,35 @@
+{
+  "max_tokens": 1024,
+  "variants": {
+    "bf16": {
+      "tag": "bf16",
+      "n_failed_at_512": 20,
+      "landed_at_1024": 19,
+      "l4_correct_at_1024": 18
+    },
+    "w4a16-gptq": {
+      "tag": "w4a16-gptq",
+      "n_failed_at_512": 21,
+      "landed_at_1024": 19,
+      "l4_correct_at_1024": 17
+    },
+    "w4a16-awq": {
+      "tag": "w4a16-awq",
+      "n_failed_at_512": 16,
+      "landed_at_1024": 15,
+      "l4_correct_at_1024": 14
+    },
+    "nvfp4": {
+      "tag": "nvfp4",
+      "n_failed_at_512": 30,
+      "landed_at_1024": 26,
+      "l4_correct_at_1024": 24
+    },
+    "nvfp4-marlin": {
+      "tag": "nvfp4-marlin",
+      "n_failed_at_512": 27,
+      "landed_at_1024": 25,
+      "l4_correct_at_1024": 23
+    }
+  }
+}
