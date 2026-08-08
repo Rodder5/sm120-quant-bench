@@ -73,6 +73,11 @@ first run). Frozen splits carved once by
 
 Deltas vs BF16 with bootstrap 95% CIs: `results/` after a full run.
 
+**Download the checkpoints** (each ships its damage table and kernel receipt in the
+model card): [W4A16-GPTQ](https://huggingface.co/Rodder5/Qwen3-8B-W4A16-GPTQ) ·
+[W4A16-AWQ](https://huggingface.co/Rodder5/Qwen3-8B-W4A16-AWQ) ·
+[NVFP4](https://huggingface.co/Rodder5/Qwen3-8B-NVFP4)
+
 **NVFP4 postmortem (2026-08-07):** the column exists because two independent bugs
 were unpicked, and the debugging trail is worth more than the numbers. On the released
 stack (llm-compressor 0.12.0.1, torch 2.11, one RTX 5090) the sequential pipeline
