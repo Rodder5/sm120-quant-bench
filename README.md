@@ -139,6 +139,7 @@ and seed-pinned lexicons (no LLM), bootstrap 95% CIs, kernel receipts per run.
 | L2 tool selection | 100.0 | 100.0 | 100.0 | 100.0 | 100.0 |
 | L3 schema validity | 100.0 | 100.0 | 100.0 | 100.0 | 100.0 |
 | L4 argument values | 91.7 [87.8, 95.1] | 89.7 [85.3, 93.6] | 88.0 [83.2, 92.3] | 93.3 [89.7, 96.4] | 90.9 [86.9, 94.4] |
+| End-to-end success (all 300, unconditional) | 87.7 [84.0, 91.3] | 86.0 [82.0, 89.7] | 86.3 [82.3, 90.0] | 85.7 [81.7, 89.3] | 85.0 [80.7, 89.0] |
 
 First read of the results (per-category tables in `results/toolcall-<variant>.json`,
 raw responses in `results/raw/`, instrument caveats in NOTES.md):
