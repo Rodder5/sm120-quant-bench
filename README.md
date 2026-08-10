@@ -101,13 +101,14 @@ conda nvcc without curand headers fails that build. Fix: put `curand_kernel.h` (
 in the `nvidia-*-cu13` pip wheels) on the include path, e.g. via the supported
 `FLASHINFER_EXTRA_CUDAFLAGS` hook. Logs preserved.
 
-**NVFP4 speed caveat:** NVFP4 TTFT/ITL numbers were measured with
-`VLLM_FLASHINFER_AUTOTUNE_SKIP_OPS=fp4_gemm` (default kernel tactics). Full fp4_gemm
-autotune on sm_120 tunes every capture-size × layer-shape combination at ~1.5 min
-each — 3.5 hours in, it was still going, so evals (where tactics change nothing)
-and speed (where they matter at the margin) both skip it; a fully-autotuned speed
-rerun is a cheap follow-up once the cache finishes building. Quality numbers are
-unaffected by tactic selection.
+**NVFP4 speed caveat, resolved:** the table's NVFP4 TTFT/ITL were measured at
+default kernel tactics (`VLLM_FLASHINFER_AUTOTUNE_SKIP_OPS=fp4_gemm`), because full
+fp4_gemm autotune on sm_120 costs hours (per capture-size × layer-shape, ~290
+combinations measured). The promised fully-autotuned rerun has since landed
+(`results/speed-nvfp4-tuned.json`): TTFT 9.3 ms, ITL 6.54 ms/token — statistically
+identical to default tactics, and still behind the Marlin fallback's 7.3/4.6. Tactic
+tuning does not close the native-path gap: at this model size, single-stream, the
+deficit is structural. Quality numbers were never affected by tactics.
 
 **Long-context probe status:** the v1 single-needle row sits at 100% for nearly
 every variant — saturated, a ceiling rather than a victory, retained as the honesty
