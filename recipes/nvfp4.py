@@ -2,14 +2,13 @@
 The novel leg: consumer Blackwell (sm_120) NVFP4 behaviour is thinly documented.
 Record EVERY kernel-fallback warning vLLM emits at load; that goes in the write-up.
 
-Two findings from getting this to run on a 32GB card, in order of discovery:
-1. The released llm-compressor 0.12 sequential fx tracer cannot trace Qwen3-8B
-   (its wrapped input guard fires inside the traced subgraph). Fixed on main —
-   install `llmcompressor @ git+https://github.com/vllm-project/llm-compressor.git`.
-2. The recurring "Tried to allocate 16.00 GiB" OOM was never the quantizer: with
-   max_seq_length omitted, one 10k+-token ultrachat conversation explodes the
-   attention-mask expansion in transformers' masking_utils. Truncate like the
-   other recipes do and the whole run fits beside 4GB of co-tenants.
+The one finding from getting this to run on a 32GB card (corrected 2026-08-11;
+an earlier version of this docstring described a tracer bug that never existed,
+see llm-compressor#3011): with max_seq_length omitted, the attention-mask
+expansion OOMs with a misleading 16 GiB allocation whose error presentation on
+released 0.12.x buries "CUDA out of memory" beneath an autowrapped source dump.
+Released 0.12.x works; set max_seq_length like the other recipes and the whole
+run fits beside 4GB of co-tenants.
 """
 import argparse
 

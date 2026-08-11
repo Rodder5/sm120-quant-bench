@@ -78,15 +78,19 @@ model card): [W4A16-GPTQ](https://huggingface.co/Rodder5/Qwen3-8B-W4A16-GPTQ) ·
 [W4A16-AWQ](https://huggingface.co/Rodder5/Qwen3-8B-W4A16-AWQ) ·
 [NVFP4](https://huggingface.co/Rodder5/Qwen3-8B-NVFP4)
 
-**NVFP4 postmortem (2026-08-07):** the column exists because two independent bugs
-were unpicked, and the debugging trail is worth more than the numbers. On the released
-stack (llm-compressor 0.12.0.1, torch 2.11, one RTX 5090) the sequential pipeline
-cannot fx-trace Qwen3-8B (its traced subgraph trips `You must specify exactly one of
-input_ids or inputs_embeds`); that is fixed on llm-compressor main (unreleased), which
-`recipes/nvfp4.py` now requires. Behind it hid a second failure that had been
-misattributed to the quantizer across three earlier attempts: a recurring
-"Tried to allocate 16.00 GiB" OOM that survived both `pipeline="basic"` and full CPU
-weight offload. It was never the pipeline — with `max_seq_length` omitted, calibration
+**NVFP4 postmortem (2026-08-07, corrected 2026-08-11):** the original version of this
+note described two independent bugs. Re-reading the original failure log during the
+upstream discussion ([llm-compressor#3011](https://github.com/vllm-project/llm-compressor/issues/3011))
+showed there was only ever one. The "tracer failure" (`You must specify exactly one of
+input_ids or inputs_embeds`) was never a raised exception: it is a line inside the
+autowrapped source dump that 0.12.0.1 prints above errors, and the actual exception
+beneath it was the same 16 GiB OOM as every later attempt. Released 0.12.x quantizes
+Qwen3-8B fine once `max_seq_length` is set (verified end to end in a clean pinned
+environment); the git-main pin this repo previously required was cargo cult born of
+that misreading. The postmortem needed a postmortem, and the moral sharpened: the
+recurring "Tried to allocate 16.00 GiB" OOM survived `pipeline="basic"`, full CPU
+weight offload, AND a misdiagnosis as a tracing bug, because the error presentation
+pointed everywhere except the cause. With `max_seq_length` omitted, calibration
 pads every batch to its longest sample, and transformers' `masking_utils` materializes
 the attention-mask broadcast over the whole padded batch: 128 samples × 3994² (our
 longest sample, measured) at 8 bytes is 15.9 GiB — the "16.00 GiB" in the traceback.
@@ -99,7 +103,9 @@ weight-only via Marlin — 16-bit activations, not the format under test — or 
 emulation), and that kernel (`fp4_gemm_cutlass_sm120`) is JIT-compiled at first load. A
 conda nvcc without curand headers fails that build. Fix: put `curand_kernel.h` (shipped
 in the `nvidia-*-cu13` pip wheels) on the include path, e.g. via the supported
-`FLASHINFER_EXTRA_CUDAFLAGS` hook. Logs preserved.
+`FLASHINFER_EXTRA_CUDAFLAGS` hook. Logs preserved. Upstream is improving the OOM
+message at exactly the site that misled here
+([llm-compressor#3020](https://github.com/vllm-project/llm-compressor/pull/3020)).
 
 **NVFP4 speed caveat, resolved:** the table's NVFP4 TTFT/ITL were measured at
 default kernel tactics (`VLLM_FLASHINFER_AUTOTUNE_SKIP_OPS=fp4_gemm`), because full

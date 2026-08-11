@@ -63,8 +63,13 @@ compressed-tensors 0.17.0 (CPU), the same combo with the GPU visible, and the
 same combo with max_seq_length omitted. The last of these fails, but with the
 16 GiB mask OOM already filed as issue #3011, disguised on the release line by
 append_autowrap_source_on_fail re-raising it under an autowrapped source dump.
-Conclusion: the tracer error was environmental and is not filed; the draft
-issue for it stays withdrawn. New facts fed back as a comment on #3011: the
+Conclusion at the time: environmental, not filed. TRUE ENDING (2026-08-11,
+found while answering a maintainer question on #3011): the tracer error never
+existed. The night-one log's ValueError text was the autowrapped SOURCE DUMP
+printed above the real exception, which was the same 16 GiB mask OOM as
+everything else. One bug, presenting as three, each face created by error
+presentation. The withdrawn draft was more right than the withdrawal notice:
+there was nothing to file because there was nothing there. New facts fed back as a comment on #3011: the
 allocation is invariant to sample count (8 vs 128 samples, identical
 16.00 GiB), and the release version buries the OOM below generated code.
 
