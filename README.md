@@ -128,6 +128,9 @@ serving path on this card. Caveats and kernel receipts in the results JSONs.
 
 ## Tool calling under quantization
 
+Write-up: ["Your agent's tools survive 4-bit. Its token budget and its defaults
+don't."](https://rodwoods.dev/posts/agent-tools-survive-4bit/)
+
 Agent stacks bet that quantization preserves structured output: a model that
 still writes fine prose is assumed to still emit valid, correctly-argued tool
 calls. This study measures the bet, extending the numeric-fidelity finding
